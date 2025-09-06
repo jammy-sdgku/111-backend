@@ -84,7 +84,47 @@ def login():
         return jsonify({"message":"Login successful - OK","user_id":user.id}), 200
     else:
         return jsonify({"error":"Invalid username or password"}), 401
+
+#get user by id route -------------------------------------------------------------------------------
+@app.get("/api/users/<user_id>")#route to get user details by user_id
+def get_user(user_id):#function to handle getting user details
+    user = session.query(User).filter_by(id=user_id).first()#query to find user by id
+    if not user:
+        return jsonify({"error":"User not found"}), 404
     
+    user_data = { #prepare user data to return
+        "id": user.id,
+        "username": user.username}
+    return jsonify(user_data), 200
+
+#update a user route -------------------------------------------------------------------------------
+@app.put("/api/users/<user_id>")#route to update user details by user_id
+def update_user(user_id):#function to handle updating user details
+    data=request.get_json()#get JSON data from the request
+    new_username=data.get("username")#get new username from request data
+    new_password=data.get("password")#get new password from request data
+    user=session.query(User).filter_by(id=user_id).first()#query to find user by id
+    if not user:
+        return jsonify({"error":"User not found"}), 404
+    if new_username:
+        user.username=new_username#update username if provided
+    if new_password:
+        user.password=new_password#update password if provided
+    session.commit()#commit the session to save changes to the database
+    return jsonify({"message":"User updated successfully - OK"}), 200
+
+#delete a user route -------------------------------------------------------------------------------
+@app.delete("/api/users/<user_id>")#route to delete user by user_id
+def delete_user(user_id):#function to handle deleting user
+    user=session.query(User).filter_by(id=user_id).first()#query to find user by id
+    if not user:
+        return jsonify({"error":"User not found"}), 404
+    session.delete(user)#delete user from the session
+    session.commit()#commit the session to save changes to the database
+    return jsonify({"message":"User deleted successfully - OK"}), 200
+
+#expense routes 
+
 #expense creation route ------------------------------------------------------------------------------
 @app.post("/api/create_expense")#route to create a new expense
 def create_expense():#function to handle expense creation
@@ -95,6 +135,11 @@ def create_expense():#function to handle expense creation
     category = data.get("category")#get category from request data
     user_id = data.get("user_id")  # In a real app, this would come from the authenticated user context
     print(data)
+    allowed_categories = ["Food", "Auto", "Education", "Entertainment", "Other"]
+    if category not in allowed_categories:
+        return jsonify({"error": "Invalid category"}), 400
+    if not title or not amount or not category or not user_id:
+        return jsonify({"error": "Title, amount, category, and user_id are required"}), 400
     new_expense = Expense( #create new Expense instance
         title=title,
         description=description,
@@ -107,6 +152,60 @@ def create_expense():#function to handle expense creation
     
     return jsonify({"message":"Expense successfully added - OK"}), 201
 
-#ensures the the server runs only when script is executed directly
+
+#expense retrieval route ----------------------------------------------------------------------------
+@app.get("/api/expenses/<user_id>")#route to get all expenses for a user by user_id
+def get_expenses(user_id):#function to handle getting expenses for a user
+    expenses=session.query(Expense).filter_by(user_id=user_id).all()#query to find all expenses for the user
+    if not expenses:
+        return jsonify({"error":"No expenses found for this user"}), 404   
+    expenses_data=[]#list to hold expense data
+    for expense in expenses:#iterate over expenses and prepare data to return
+        expenses_data.append({
+            "id": expense.id,
+            "title": expense.title,
+            "description": expense.description,
+            "amount": expense.amount,
+            "date": expense.date.isoformat(), #convert date to ISO format string
+            "category": expense.category
+        })
+    return jsonify(expenses_data), 200
+
+#expense update route --------------------------------------------------------------------------------
+@app.put("/api/expenses/<expense_id>")#route to update an expense by expense_id
+def update_expense(expense_id):#function to handle updating an expense
+    data=request.get_json()#get JSON data from the request
+    expense=session.query(Expense).filter_by(id=expense_id).first()#query to find expense by id
+    if not expense:
+        return jsonify({"error":"Expense not found"}), 404
+    title=data.get("title")#get new title from request data
+    description=data.get("description")#get new description from request data
+    amount=data.get("amount")#get new amount from request data
+    category=data.get("category")#get new category from request data
+    allowed_categories=["Food", "Auto", "Education", "Entertainment", "Other"]
+    if category and category not in allowed_categories:
+        return jsonify({"error":"Invalid category"}), 400
+    if title:
+        expense.title=title#update title if provided
+    if description:
+        expense.description=description#update description if provided
+    if amount:
+        expense.amount=float(amount)#update amount if provided, convert to float
+    if category:
+        expense.category=category#update category if provided
+    session.commit()#commit the session to save changes to the database
+    return jsonify({"message":"Expense updated successfully - OK"}), 200
+
+#expense deletion route ------------------------------------------------------------------------------
+@app.delete("/api/expenses/<expense_id>")#route to delete an expense by expense_id
+def delete_expense(expense_id):#function to handle deleting an expense
+    expense=session.query(Expense).filter_by(id=expense_id).first()#query to find expense by id
+    if not expense:
+        return jsonify({"error":"Expense not found"}), 404
+    session.delete(expense)#delete expense from the session
+    session.commit()#commit the session to save changes to the database
+    return jsonify({"message":"Expense deleted successfully - OK"}), 200
+
+#ensures the the server runs only when script is executed directly ------------------------------------------------
 if __name__ == "__main__":
     app.run(debug=True)

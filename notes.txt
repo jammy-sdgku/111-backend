@@ -21,3 +21,6 @@ pip install SQLAlchemy
  http://127.0.0.1:5000
 
  #Database info 
+
+ #soft delete - made to deactivate account without deleting it. 
+ is_active:inactive
