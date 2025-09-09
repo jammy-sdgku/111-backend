@@ -1,0 +1,10 @@
+{% extends 'base.html'%} {% block content%}
+<div
+  class="container text-center"
+  style="background-image: url('{{ url_for('static', filename='background.jpg') }}'); background-size: cover; padding: 50px; border-radius: 15px; color: black;"
+>
+  <h1 style="padding: 2rem">Home Page - Final Report</h1>
+  <p>Welcome to the James' home page of my Flask and Python application!</p>
+  <p>Explore the pages and learn more about my application.</p>
+</div>
+{% endblock content%}

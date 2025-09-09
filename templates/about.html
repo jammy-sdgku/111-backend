@@ -1,0 +1,22 @@
+{% extends 'base.html'%} {% block content%}
+<h1>About Student</h1>
+<p>Student Information.</p>
+
+<div class="card" style="width: 15rem; margin: auto">
+  <img
+    src="{{ url_for('static', filename='james.jpeg') }}"
+    class="card-img-top"
+    alt="james pic"
+  />
+  <div class="card-body">
+    <h5 class="card-title">Hello, my name is {{ student.name }}</h5>
+    <h6 class="card-subtitle mb-2 text-muted">Cohort: {{ student.cohort }}</h6>
+    <h6 class="card-subtitle mb-2 text-muted">Year: {{ student.year }}</h6>
+    <p class="card-text">
+      I am excited to be part of cohort {{ student.cohort }} and look forward to
+      learning more about Flask and Python!
+    </p>
+  </div>
+</div>
+
+{% endblock content%}
