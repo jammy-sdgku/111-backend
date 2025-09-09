@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from sqlalchemy import (
     create_engine, 
     Column, 
@@ -205,6 +205,48 @@ def delete_expense(expense_id):#function to handle deleting an expense
     session.delete(expense)#delete expense from the session
     session.commit()#commit the session to save changes to the database
     return jsonify({"message":"Expense deleted successfully - OK"}), 200
+
+#frontend Endpoints --------------------------------------------------------------------------------
+@app.get("/")#route for the home page
+@app.get("/home")#route for the home page
+@app.get("/index")#route for the index
+def home():
+    return render_template("home.html") #render the home.html template
+
+@app.get("/about")#route for the about page
+def about():
+    student = {
+        "name": "James Jones",
+        "cohort": "59",
+        "year": "2025"}
+    return render_template("about.html", student=student) #render the about.html template
+
+@app.get("/students")#route for the students page
+def students_list():
+    students = [
+        {
+        "name": "John", 
+         "age": "21",
+         "cohort": "59", 
+         "favorite_color": "#ff0000", 
+         "year": "2025"
+         },
+        {
+        "name": "Bob", 
+        "age": "22",
+        "cohort": "59", 
+        "favorite_color":"#e3d2d3", 
+        "year": "2025"
+        },
+        {
+        "name": "Charlie", 
+        "age": "23",
+        "cohort": "59", 
+        "favorite_color":"#0a0809", 
+        "year": "2025"
+        }
+    ]
+    return render_template("students-list.html", students=students)
 
 #ensures the the server runs only when script is executed directly ------------------------------------------------
 if __name__ == "__main__":
