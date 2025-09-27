@@ -1,0 +1,29 @@
+{% extends 'base.html'%} {% block content%}
+<div
+  class="container text-center"
+  style="background-image: url('{{ url_for('static', filename='background.jpg') }}'); background-size: cover; padding: 50px; border-radius: 15px; color: black;"
+>
+  <h1>Expenses Page</h1>
+  <p>Welcome to the expenses page of our Flask and Python application!</p>
+
+  <p>List of Expenses:</p>
+  <table class="table table-striped">
+    <tr>
+      <th>Title</th>
+      <th>Description</th>
+      <th>Amount</th>
+      <th>Date</th>
+      <th>Category</th>
+    </tr>
+    {% for expense in expenses %}
+    <tr>
+      <td>{{ expense.title }}</td>
+      <td>{{ expense.description }}</td>
+      <td>${{ expense.amount }}</td>
+      <td>{{ expense.date }}</td>
+      <td>{{ expense.category }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock content%}
