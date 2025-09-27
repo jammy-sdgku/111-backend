@@ -152,6 +152,23 @@ def create_expense():#function to handle expense creation
     
     return jsonify({"message":"Expense successfully added - OK"}), 201
 
+#all expenses retrieval route -----------------------------------------------------------------------
+@app.get("/api/expenses")#route to get all expenses for a user by user_id
+def get_all_expenses():#function to handle getting expenses for a user
+    expenses=session.query(Expense).all()#query to find all expenses for the user
+    if not expenses:
+        return jsonify({"error":"No expenses found"}), 404   
+    expenses_data=[]#list to hold expense data
+    for expense in expenses:#iterate over expenses and prepare data to return
+        expenses_data.append({
+            "id": expense.id,
+            "title": expense.title,
+            "description": expense.description,
+            "amount": expense.amount,
+            "date": expense.date.isoformat(), #convert date to ISO format string
+            "category": expense.category
+        })
+    return render_template("expenses-list.html", expenses=expenses)
 
 #expense retrieval route ----------------------------------------------------------------------------
 @app.get("/api/expenses/<user_id>")#route to get all expenses for a user by user_id
